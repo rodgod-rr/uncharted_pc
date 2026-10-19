@@ -28,10 +28,10 @@ sessions longer than about 40 minutes, controllers.
 
 Known problems:
 
-- **FSR frame generation broke the picture on the NVIDIA proprietary driver**, and during the same
+- **FSR 3 frame generation broke the picture on the NVIDIA proprietary driver**, and during the same
   minute the kernel log filled with `NVRM: dmaAllocMapping_GM107: can't alloc VA space` (BAR1
   allocation failures, ~600,000 messages in 40 s). The two were observed together; the cause was not
-  investigated. Leave frame generation off. DLSS frame generation is not available (see "DLSS").
+  investigated. Use DLSS frame generation instead on RTX 40+ (see "DLSS").
 - Switching the upscaler while playing (to FSR 4 without its assets) fell back to FSR 3.1 and then
   logged `FSR 3 context creation failed`. Restart the game after changing the upscaler or frame
   generation; not investigated further.
@@ -87,7 +87,7 @@ Optional inputs in `packaging/linux/vendor/` (ignored by git):
 
 - `pkgextract`: enables `--install-pkg`. Build it from
   [paulomanrique/ps4-pkg-extractor](https://github.com/paulomanrique/ps4-pkg-extractor) (Unlicense).
-- `dlss/`: enables DLSS, see below.
+- `dlss/`: enables DLSS and its frame generation, made by `build-dlss-bridge.sh` (see below).
 
 ## Use
 
@@ -108,14 +108,23 @@ in the game (Insert) or in `bbport.ini` there.
 
 ## DLSS
 
-DLSS needs two files beside `bb-probe` (the AppImage puts them there when they are in
-`vendor/dlss/`): the bridge `libbbport_dlss.so` and NVIDIA's `libnvidia-ngx-dlss.so.<version>`
-from [NVIDIA/DLSS](https://github.com/NVIDIA/DLSS) (`lib/Linux_x86_64/rel`), with its license text
-as `NVIDIA-DLSS-LICENSE.txt`. **Do not commit NVIDIA's library**: it has its own license.
+`build-dlss-bridge.sh` downloads NVIDIA's [DLSS SDK](https://github.com/NVIDIA/DLSS) (public; only the
+headers, `libnvsdk_ngx.a` and the Linux `libnvidia-ngx-dlss` / `libnvidia-ngx-dlssg` libraries, ~100 MB),
+builds the bridge `libbbport_dlss.so` (ABI 2: Super Resolution and Frame Generation) and collects the
+files in `vendor/dlss/`, which `make-appimage.sh` bundles next to `bb-probe`:
 
-The loader in `vk_dlss.cpp` accepts bridge ABI 1 and 2. The bridge used for testing was built for
-the Bloodborne port (ABI 1): upscaling works ("DLSS: ready"); DLSS frame generation needs ABI 2
-and is not covered here.
+```bash
+bash packaging/linux/build-dlss-bridge.sh
+bash packaging/linux/make-appimage.sh
+```
+
+**Do not commit NVIDIA's libraries**: they have their own license (`NVIDIA-DLSS-LICENSE.txt` is copied
+next to them). Frame Generation needs an RTX 40 or newer GPU and a recent NVIDIA driver.
+
+Status: on the RTX 4050 Laptop above the log reports "DLSS: Frame Generation available (up to 2x)", and
+choosing DLSS frame generation in the in-game menu (Insert) showed 120 FPS on screen in a short test, with
+no NVIDIA driver errors in the kernel log during it. Longer sessions, latency and image artifacts were not
+evaluated. A bridge of ABI 1 (for example the Bloodborne port's) still works for upscaling only.
 
 ## What changed (relative to the Windows code)
 
@@ -123,7 +132,7 @@ and is not covered here.
 - GPU library: Win32-only debug code in `vk_scheduler.cpp` got Linux equivalents, one
   `vk::Extent2D` assignment GCC rejects, and `miniupnpc` is linked on Linux.
 - `run.py` runs on Linux (PID wait, probe name, command quoting).
-- `vk_dlss.cpp` has the Linux loader (`dlopen`).
+- `vk_dlss.cpp` has the Linux loader (`dlopen`); `gpu/dlss_bridge` builds on Linux too.
 - `scripts/pkg_install.py` installs from `.pkg` files.
 - `packaging/linux/`: this directory.
 

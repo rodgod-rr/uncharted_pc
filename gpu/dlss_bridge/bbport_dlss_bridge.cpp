@@ -445,6 +445,12 @@ const BbDlssApi api{BBPORT_DLSS_BRIDGE_ABI, Configure,        InstanceExtensions
 
 } // namespace
 
-extern "C" __declspec(dllexport) const BbDlssApi* BbDlssGetApi() {
+#ifdef _WIN32
+#define BBPORT_DLSS_EXPORT __declspec(dllexport)
+#else
+#define BBPORT_DLSS_EXPORT __attribute__((visibility("default")))
+#endif
+
+extern "C" BBPORT_DLSS_EXPORT const BbDlssApi* BbDlssGetApi() {
     return &api;
 }
