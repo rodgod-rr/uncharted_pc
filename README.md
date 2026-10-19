@@ -62,6 +62,9 @@ code runs directly on your PC and the graphics are translated to Vulkan. Unpack 
 MSYS2 CLANG64 on Windows: `bash build.sh` builds `out\bb-probe.exe`, and
 `bash packaging/windows/package.sh` makes `dist\uncharted-windows` and the zip.
 
+Linux (experimental, tested on one machine): see [packaging/linux/README.md](packaging/linux/README.md)
+for the build, the AppImage and installing from `.pkg` files.
+
 ## Credits
 
 Built on [bbport](https://github.com/deadinside28/bloodborne_pc), the native Linux port of
