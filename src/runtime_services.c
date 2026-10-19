@@ -5,6 +5,9 @@
  *   - the whole package is installed (PlayGo reports every chunk local).
  * Every entry here is an explicit contract; unknown functions still stop. */
 #define _GNU_SOURCE
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include "runtime.h"
 #include "gpu/bbgpu.h"
 #include <stdio.h>
