@@ -26,3 +26,4 @@ patches.json
 !launcher/bloodborne.png
 # Official cover art: local only, never in the repository or a release
 launcher/art/
+packaging/linux/vendor/

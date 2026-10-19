@@ -1,0 +1,13 @@
+# Shim: Fedora ships protobuf with pkg-config only; provide protobuf::protoc and protobuf::libprotobuf.
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PROTOBUF_PC REQUIRED IMPORTED_TARGET protobuf)
+find_program(PROTOBUF_PROTOC_EXE protoc REQUIRED)
+if(NOT TARGET protobuf::protoc)
+    add_executable(protobuf::protoc IMPORTED)
+    set_target_properties(protobuf::protoc PROPERTIES IMPORTED_LOCATION "${PROTOBUF_PROTOC_EXE}")
+endif()
+if(NOT TARGET protobuf::libprotobuf)
+    add_library(protobuf::libprotobuf INTERFACE IMPORTED)
+    target_link_libraries(protobuf::libprotobuf INTERFACE PkgConfig::PROTOBUF_PC)
+endif()
+set(Protobuf_FOUND TRUE)
