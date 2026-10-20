@@ -44,8 +44,8 @@ Known problems:
   null access (guest fault at 0x547c41 the second time). Not investigated; no driver error or OOM in the
   kernel log. The first one happened before the optional spin backoff existed, the second one with it
   enabled (level 10); whether it is related was not tested (it would need a run with `BB_SPIN_BACKOFF=0`). After that crash the
-  game was started again at spin backoff level 10 and played for about 3 hours without a crash (reported by the
-  player, not logged; the game was not recorded).
+  Uncharted 1 was started again at spin backoff level 10 and played for about 3 hours without a crash (reported by the
+  player, not logged).
 - Video memory use grew to about 5 GiB of 6 GiB during a long session.
 
 Performance note (laptops): the game keeps about 6-8 cores busy, mostly its own job workers
