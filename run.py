@@ -175,6 +175,15 @@ def main():
                    '--app0', str(game), '--user', str(user_dir), '--timeout', env.get('BB_TIMEOUT', '0')]
         if guest_argv:
             command += ['--guest-argv', str(guest_argv)]
+        # Optional: idle job workers sleep instead of spinning (scripts/spin_backoff.py; it finds the loop by its
+        # bytes in each of the three executables). Off unless BB_SPIN_BACKOFF=1; BB_SPIN_AFTER (polls without
+        # work before the first sleep) and BB_SPIN_SLEEP_US (microseconds per sleep) are its two numbers.
+        if env.get('BB_SPIN_BACKOFF') == '1':
+            spin = out / 'spin.bin'
+            run_script('spin_backoff.py', out / 'eboot.elf', '--out', spin,
+                       '--after', env.get('BB_SPIN_AFTER', '300'), '--sleep-us', env.get('BB_SPIN_SLEEP_US', '50'))
+            if spin.is_file():
+                command += ['--patches', str(spin)]
         loadexec.unlink(missing_ok=True)
         # No stdin: an inherited pipe (shells such as Git Bash) cost the game its console output.
         code = subprocess.run([*command, *args], stdin=subprocess.DEVNULL, creationflags=no_console()).returncode

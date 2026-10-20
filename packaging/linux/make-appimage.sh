@@ -31,7 +31,7 @@ exec "$d/bb-probe-real" "$@"
 W
 chmod +x "$share/bin/bb-probe"
 cp "$repo/run.py" "$repo/LICENSE" "$share/"
-cp "$repo"/scripts/{prepare,link_modules,link_libc,content_profile,pkg_install}.py "$share/scripts/"
+cp "$repo"/scripts/{prepare,link_modules,link_libc,content_profile,pkg_install,spin_backoff}.py "$share/scripts/"
 [[ -x $here/vendor/pkgextract ]] && install -m755 "$here/vendor/pkgextract" "$share/bin/pkgextract"
 
 # Optional DLSS: the bridge and NVIDIA's runtime library, found by vk_dlss.cpp beside bb-probe.
@@ -89,6 +89,9 @@ if [[ ${1:-} =~ ^u[123]$ ]]; then export BB_EXE=$1; shift; fi
 if [[ -z ${BB_GAME_DIR:-} ]]; then
     echo "usage: ${APPIMAGE:-$0} GAME_DIR [u1|u2|u3]   (the folder with eboot.bin)" >&2; exit 2
 fi
+# Idle job workers sleep instead of spinning (less CPU and heat; scripts/spin_backoff.py). On by default in this
+# build; BB_SPIN_BACKOFF=0 turns it off, BB_SPIN_AFTER / BB_SPIN_SLEEP_US tune it.
+export BB_SPIN_BACKOFF=${BB_SPIN_BACKOFF:-1} BB_SPIN_AFTER=${BB_SPIN_AFTER:-30} BB_SPIN_SLEEP_US=${BB_SPIN_SLEEP_US:-200}
 export BB_DATA_DIR=${BB_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/uncharted}
 mkdir -p "$BB_DATA_DIR"
 export BB_PROBE="$here/usr/share/uncharted/bin/bb-probe"
