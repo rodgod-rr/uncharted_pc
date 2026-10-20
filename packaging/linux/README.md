@@ -15,15 +15,18 @@ Tested on one machine only:
 |---|---|
 | OS | Fedora 44, kernel 7.2, KDE Plasma (Wayland) |
 | CPU / GPU | Intel Core i5-13450HX / NVIDIA GeForce RTX 4050 Laptop (6 GB), driver 615.78 |
-| Game | CUSA02320 base game + update 1.02, `u1` (`eboot.bin`) |
+| Game | CUSA02320 base game + update 1.02: `u1` (`eboot.bin`) played, `u2` and `u3` only started |
 
 What works there:
 
-- builds with GCC and runs; **Uncharted 1 plays at 50-60 FPS** with the DLSS upscaler;
+- builds with GCC and runs; **Uncharted 1 plays at 50-60 FPS** with the DLSS upscaler, and at 120 FPS with
+  DLSS frame generation;
+- **Uncharted 2 and 3 start and render at 120 FPS** with DLSS frame generation. Only the opening of each was
+  run (a minute or two), so "playable" is not established for them;
 - installing the game, update and add-ons from `.pkg` files (`--install-pkg`);
 - the in-game settings menu (Insert).
 
-**Not tested:** Uncharted 2 and 3 (`u2`, `u3`), AMD and Intel GPUs, other distributions,
+**Not tested:** longer sessions of Uncharted 2 and 3, AMD and Intel GPUs, other distributions,
 sessions longer than about 40 minutes, controllers.
 
 Known problems:
