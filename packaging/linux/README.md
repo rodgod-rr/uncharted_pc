@@ -38,9 +38,12 @@ Known problems:
 - Switching the upscaler while playing (to FSR 4 without its assets) fell back to FSR 3.1 and then
   logged `FSR 3 context creation failed`. Restart the game after changing the upscaler or frame
   generation; not investigated further.
-- One crash after ~40 minutes, right after a checkpoint save:
+- Two crashes of Uncharted 1, one after ~40 minutes and one after ~68 minutes, both right after a
+  checkpoint save (`SaveWorker` / `save data ... mounted` in the log, the second one after a cutscene):
   `ASSERTION: iSubMesh < m_numSubMeshInstances` (ndlib/render/ngen/mesh.h:1361) followed by a
-  null access. Not investigated; it did not show a driver error at that moment.
+  null access (guest fault at 0x547c41 the second time). Not investigated; no driver error or OOM in the
+  kernel log. The first one happened before the optional spin backoff existed, the second one with it
+  enabled (level 10); whether it is related was not tested (it would need a run with `BB_SPIN_BACKOFF=0`).
 - Video memory use grew to about 5 GiB of 6 GiB during a long session.
 
 Performance note (laptops): the game keeps about 6-8 cores busy, mostly its own job workers
