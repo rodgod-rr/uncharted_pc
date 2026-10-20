@@ -47,10 +47,36 @@ Known problems:
 - Video memory use grew to about 5 GiB of 6 GiB during a long session.
 
 Performance note (laptops): the game keeps about 6-8 cores busy, mostly its own job workers
-polling for work. On a Dell G15 5530, in our tests, the CPU hit 100 °C and the clocks then fell to about 1-1.8 GHz,
-dropping the frame rate to ~20 FPS; the `performance` platform profile together with the
-`alienware_wmi` `fanN_boost` attribute kept the clocks up. This is specific to that laptop and the
-cause (firmware power management) was inferred, not confirmed.
+polling for work (see "Idle workers: spin backoff" below). On a Dell G15 5530, in our tests, the CPU hit
+100 °C and the clocks then fell to about 1-1.8 GHz, dropping the frame rate to ~20 FPS; the `performance`
+platform profile together with the `alienware_wmi` `fanN_boost` attribute kept the clocks up. This is
+specific to that laptop and the cause (firmware power management) was inferred, not confirmed.
+
+## Idle workers: spin backoff (optional)
+
+The job workers of the games (`NdJobWorker`) poll their queues in a `pause` loop and never sleep (on a PS4
+each has a core of its own). A `perf` profile of Uncharted 1 showed about 57% of the CPU time in that loop. On a
+laptop this only costs power and heat, so `scripts/spin_backoff.py` can patch it: the worker still spins for the
+first N empty polls, so it reacts at once when work arrives, and sleeps M microseconds per poll after that.
+
+- The loop is found by its bytes (not by an address), so one script covers `eboot.bin` (u1), `big2` (u2) and
+  `big3` (u3). Nothing is written unless every byte matches; otherwise the game starts unpatched. Only the
+  `jmp rel32` after each `pause` is rewritten, and the routine lives in the zero padding at the end of the text.
+- It is off by default in `run.py`: `BB_SPIN_BACKOFF=1` turns it on, `BB_SPIN_AFTER` and `BB_SPIN_SLEEP_US` set N
+  and M. The AppImage built by `make-appimage.sh` turns it on with N=1 and M=1000 (`BB_SPIN_BACKOFF=0` turns it off).
+
+Measured on the machine above (CPU cores used by the game, `balanced` profile, opening scenes, 15-20 s each):
+
+| | without | with N=30, M=200 us |
+|---|---|---|
+| Uncharted 1 | 6.2 | 2.2 |
+| Uncharted 2 | 5.9 | 2.3 |
+| Uncharted 3 | 6.0 | 2.4 |
+
+CPU temperature went down about 4-5 °C and, in one comparison, the package no longer touched 94 °C. Settings from
+N=30, M=200 us up to N=1, M=1000 us were played at 60 FPS in Uncharted 1 without noticeable drops; longer sleeps
+(2-4 ms) used no less CPU and add latency, so they are not recommended. Not evaluated: long sessions of
+Uncharted 2 and 3, other CPUs, and whether the patch relates to the crash described above.
 
 ## Build
 
