@@ -91,7 +91,7 @@ if [[ -z ${BB_GAME_DIR:-} ]]; then
 fi
 # Idle job workers sleep instead of spinning (less CPU and heat; scripts/spin_backoff.py). On by default in this
 # build; BB_SPIN_BACKOFF=0 turns it off, BB_SPIN_AFTER / BB_SPIN_SLEEP_US tune it.
-export BB_SPIN_BACKOFF=${BB_SPIN_BACKOFF:-1} BB_SPIN_AFTER=${BB_SPIN_AFTER:-30} BB_SPIN_SLEEP_US=${BB_SPIN_SLEEP_US:-200}
+export BB_SPIN_BACKOFF=${BB_SPIN_BACKOFF:-1} BB_SPIN_AFTER=${BB_SPIN_AFTER:-1} BB_SPIN_SLEEP_US=${BB_SPIN_SLEEP_US:-1000}
 export BB_DATA_DIR=${BB_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/uncharted}
 mkdir -p "$BB_DATA_DIR"
 export BB_PROBE="$here/usr/share/uncharted/bin/bb-probe"
